@@ -39,7 +39,7 @@ winget install "FFmpeg (Essentials Build)"
 or run the FFMPEG.ps1 file that include in the repo
 
 ### Run the Scripts
-**Customize the video URL and the destination folder:**
+**Customize the video URL and the destination folder (Initially the code will create folders inside the repo folder):**
 ```python
 video_url = "YOUR_YOUTUBE_URL_HERE"
 download_full_hd(video_url, output_path='YOUR_DESTINATION_FOLDER_HERE')
