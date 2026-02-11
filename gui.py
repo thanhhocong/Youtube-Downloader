@@ -556,10 +556,24 @@ class YouTubeDownloaderApp(ctk.CTk):
             'merge_output_format': 'mp4',
             'progress_hooks': [self._progress_hook],
         }
+        
+        # Always ensure MP4 container with AAC audio codec for maximum compatibility
+        ydl_opts['postprocessors'] = [{
+            'key': 'FFmpegVideoConvertor',
+            'preferedformat': 'mp4',
+        }]
+        
+        # Force audio codec to AAC for universal compatibility
+        ydl_opts['postprocessor_args'] = [
+            '-c:v', 'copy',  # Copy video without re-encoding
+            '-c:a', 'aac',   # Convert audio to AAC
+            '-b:a', '192k',  # Audio bitrate 192kbps
+        ]
+            
         if has_audio:
-            self.after(0, lambda: self._log("⬇ Đang tải video..."))
+            self.after(0, lambda: self._log("⬇ Đang tải video (MP4/AAC)..."))
         else:
-            self.after(0, lambda: self._log("⬇ Đang tải video + audio và merge (cần ffmpeg)..."))
+            self.after(0, lambda: self._log("⬇ Đang tải video + audio và merge (MP4/AAC)..."))
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
 
