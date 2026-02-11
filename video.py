@@ -1,7 +1,7 @@
 import yt_dlp
-import json
-import sys
+import os
 import shutil
+import sys
 
 def check_dependencies():
     """Check if required dependencies are available"""
@@ -15,7 +15,10 @@ def download_full_hd(video_url, output_path='./video'):
     """
     # Check if ffmpeg is available
     if not check_dependencies():
-        print("ERROR: FFmpeg is not installed. Installing now...")
+        print("ERROR: FFmpeg is not installed. Please install FFmpeg first.")
+        print("Ubuntu/Debian: sudo apt-get install ffmpeg")
+        print("macOS: brew install ffmpeg")
+        print("Windows: Download from https://ffmpeg.org/download.html")
         return False
     
     ydl_opts = {
@@ -30,11 +33,15 @@ def download_full_hd(video_url, output_path='./video'):
 
     try:
         with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-            ydl.download([video_url])
-        print(f"\nDownload complete: {video_url}")
+            info = ydl.extract_info(video_url, download=True)
+            video_title = info.get('title', 'Unknown')
+            
+        print(f"\n✓ Download complete!")
+        print(f"✓ Video: {video_title}")
         return True
+        
     except Exception as e:
-        print(f"\nAn error occurred: {e}")
+        print(f"\n✗ Download failed: {e}")
         return False
 
 def progress_hook(d):
@@ -47,13 +54,69 @@ def progress_hook(d):
         eta = d.get('_eta_str', 'N/A')
         print(f"Downloading: {percent} at {speed} ETA: {eta}", end='\r')
     elif d['status'] == 'finished':
-        print("\nFinished downloading, starting post-processing (merging)...")
+        print("\n✓ Download finished, processing...")
 
-if __name__ == "__main__":
-    video_url = "https://youtube.com/EDIT_YOUR_LINK"
+def main():
+    """Main function with input loop"""
+    print("=" * 60)
+    print("YouTube Video Downloader (Full HD)")
+    print("=" * 60)
     
     # Create output directory if it doesn't exist
-    import os
     os.makedirs('./video', exist_ok=True)
     
-    download_full_hd(video_url)
+    while True:
+        print("\n" + "-" * 60)
+        video_url = input("Enter YouTube URL (or 'q' to quit): ").strip()
+        
+        # Check if user wants to quit
+        if video_url.lower() in ['q', 'quit', 'exit']:
+            print("\nGoodbye! 👋")
+            break
+        
+        # Check if input is empty
+        if not video_url:
+            print("⚠️  Please enter a valid URL")
+            continue
+        
+        # Check if URL looks like a YouTube URL
+        if 'youtube.com' not in video_url and 'youtu.be' not in video_url:
+            print("⚠️  This doesn't look like a YouTube URL")
+            retry = input("Try anyway? (y/n): ").strip().lower()
+            if retry != 'y':
+                continue
+        
+        print(f"\n🎬 Processing: {video_url}")
+        print("-" * 60)
+        
+        # Try to download
+        success = download_full_hd(video_url)
+        
+        if success:
+            print("\n✅ Success! Video saved to ./video/")
+            
+            # Ask if user wants to download another
+            another = input("\nDownload another video? (y/n): ").strip().lower()
+            if another != 'y':
+                print("\nGoodbye! 👋")
+                break
+        else:
+            print("\n❌ Failed to download video")
+            print("This could be due to:")
+            print("  - Invalid URL")
+            print("  - Private/restricted video")
+            print("  - Network issues")
+            print("  - Video no longer available")
+            
+            # Ask if user wants to retry or enter new URL
+            retry = input("\nTry another URL? (y/n): ").strip().lower()
+            if retry != 'y':
+                print("\nGoodbye! 👋")
+                break
+
+if __name__ == "__main__":
+    try:
+        main()
+    except KeyboardInterrupt:
+        print("\n\nOperation cancelled by user. Goodbye! 👋")
+        sys.exit(0)
