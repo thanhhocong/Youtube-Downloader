@@ -1,11 +1,4 @@
 # YouTube Downloader Setup Guide
-
-## Fixed Issues
-
-Your script had two problems:
-1. ❌ **FFmpeg not found** - Required for merging video/audio streams
-2. ⚠️ **JavaScript runtime warning** - May limit format availability (optional fix)
-
 ## Quick Setup
 
 ### 1. Install FFmpeg (Required)
