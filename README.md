@@ -18,7 +18,6 @@ brew install ffmpeg
 ```bash
 winget install "FFmpeg (Essentials Build)"
 ```
-<<<<<<< HEAD
 
 Or run the `FFMPEG.ps1` script included.
 
